@@ -1,0 +1,6 @@
+@Portfolio.Services.AuthAPI_HostAddress = http://localhost:5208
+
+GET {{Portfolio.Services.AuthAPI_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
