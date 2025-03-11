@@ -12,7 +12,7 @@ using Portfolio.Services.CoreAPI.Data;
 namespace Portfolio.Services.CoreAPI.Migrations
 {
     [DbContext(typeof(CoreDbContext))]
-    [Migration("20250311130345_InitialCreate")]
+    [Migration("20250311132803_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -63,7 +63,7 @@ namespace Portfolio.Services.CoreAPI.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ProjectPlans");
+                    b.ToTable("Projects");
                 });
 
             modelBuilder.Entity("Portfolio.Shared.Models.Skill", b =>

@@ -9,6 +9,6 @@ namespace Portfolio.Services.CoreAPI.Data
         public CoreDbContext(DbContextOptions<CoreDbContext> options) : base(options) { }
 
         public DbSet<Skill> Skills { get; set; }
-        public DbSet<Project> ProjectPlans { get; set; }
+        public DbSet<Project> Projects { get; set; }
     }
 }

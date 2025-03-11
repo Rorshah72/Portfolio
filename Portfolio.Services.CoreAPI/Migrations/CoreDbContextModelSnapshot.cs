@@ -60,7 +60,7 @@ namespace Portfolio.Services.CoreAPI.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ProjectPlans");
+                    b.ToTable("Projects");
                 });
 
             modelBuilder.Entity("Portfolio.Shared.Models.Skill", b =>

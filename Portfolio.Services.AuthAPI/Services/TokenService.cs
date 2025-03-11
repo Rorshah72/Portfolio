@@ -21,6 +21,10 @@ namespace Portfolio.Services.AuthAPI.Services
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes(_configuration["Jwt:Secret"] ?? throw new InvalidOperationException("JWT Secret is not configured"));
+            if (key.Length < 32)
+            {
+                throw new InvalidOperationException("JWT Secret must be at least 32 characters long.");
+            }
 
             var tokenDescriptor = new SecurityTokenDescriptor
             {

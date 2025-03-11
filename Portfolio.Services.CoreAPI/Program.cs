@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Portfolio.Services.CoreAPI.Data;
+using Portfolio.Services.CoreAPI.Services;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -14,6 +15,9 @@ builder.Services.AddSwaggerGen();
 // Database
 builder.Services.AddDbContext<CoreDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+// Register ICoreUnitOfWork
+builder.Services.AddScoped<ICoreUnitOfWork, CoreUnitOfWork>();
 
 // CORS policy
 builder.Services.AddCors(options =>
@@ -74,5 +78,24 @@ using (var scope = app.Services.CreateScope())
     var dbContext = scope.ServiceProvider.GetRequiredService<CoreDbContext>();
     dbContext.Database.Migrate();
 }
+
+app.Use(async (context, next) =>
+{
+    if (context.Request.Method == HttpMethod.Get.Method)
+    {
+        await next();
+    }
+    else
+    {
+        if (context.User.Identity?.IsAuthenticated == true)
+        {
+            await next();
+        }
+        else
+        {
+            context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+        }
+    }
+});
 
 app.Run();
