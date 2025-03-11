@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Portfolio.Shared.Models
 {
-    class Project
+    public class Project
     {
         // Unique identifier for the project
         public Guid Id { get; set; }

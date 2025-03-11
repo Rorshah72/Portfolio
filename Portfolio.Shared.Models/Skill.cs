@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Portfolio.Shared.Models
 {
-    class Skill
+    public class Skill
     {
         /// <summary>
         /// Unique identifier for the skill.
