@@ -1,9 +1,11 @@
 ﻿@page "/login"
-@inject AuthService AuthService
-@using Microsoft.AspNetCore.Components.Web
-@using Portfolio.Client.Blazor.Client
+@inject IAuthService AuthService
+@inject NavigationManager Navigation
+@inject IJSRuntime JS
 @using Portfolio.Client.Blazor.Services
 @using Portfolio.Shared.Models
+@using Microsoft.AspNetCore.Components
+@using Microsoft.AspNetCore.Components.Web
 
 <h3>Login</h3>
 
@@ -42,11 +44,18 @@ else if (loginResponse != null && !loginResponse.Success)
     private async Task HandleLogin()
     {
         loginResponse = await AuthService.LoginAsync(loginRequest);
-
+        Console.WriteLine("Login1= " + loginResponse.ExpiresAt);
+        Console.WriteLine("Login2= " + loginResponse.Success);
+        Console.WriteLine("Login3= " + loginResponse.RefreshToken);
         if (loginResponse != null && loginResponse.Success)
         {
-            // Зберігай токен в LocalStorage (можеш використати бібліотеку для роботи з LocalStorage)
-            // Зайди на домашню сторінку або іншу сторінку
+            Console.WriteLine("Login successful!");
+
+            // Зберігаємо токен у LocalStorage
+            await JS.InvokeVoidAsync("localStorage.setItem", "authToken", loginResponse.Token);
+            Console.WriteLine("Ne perecudue");
+            // Перенаправлення на головну сторінку
+            Navigation.NavigateTo("/");
         }
     }
 }
