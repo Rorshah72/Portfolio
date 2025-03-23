@@ -6,16 +6,16 @@ namespace Portfolio.Services.CoreAPI.Services
     //need rework
     public interface ICoreSkillsOfWork
     {
-        IRepository<Skill> Skills { get; }
+        ISkillRepository Skills { get; }
     }
 
     public interface ICoreProjectsOfWork
     {
-        IRepository<Project> Projects { get; }
+        IProjectRepository Projects { get; }
     }
 
     public interface ICoreUnitOfWork : ICoreSkillsOfWork, ICoreProjectsOfWork
     {
-        Task<int> SaveChangesAsync();
+        Task<int> CompleteAsync();
     }
 }

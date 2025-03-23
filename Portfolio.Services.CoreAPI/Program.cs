@@ -2,22 +2,78 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Portfolio.Services.CoreAPI.Data;
+using Portfolio.Services.CoreAPI.Mappings;
+using Portfolio.Services.CoreAPI.Repositories;
 using Portfolio.Services.CoreAPI.Services;
+using FluentValidation;
+using FluentValidation.AspNetCore;
+using Portfolio.Shared.Models.DTOs;
+using Portfolio.Shared.Models.Validators;
 using System.Text;
+using Serilog;
+using Portfolio.Services.CoreAPI.Middleware;
+using Microsoft.OpenApi.Models;
+
+Log.Logger = new LoggerConfiguration()
+    .WriteTo.Console()
+    .WriteTo.File("logs/log-.txt", rollingInterval: RollingInterval.Day)
+    .WriteTo.Seq("http://localhost:5341") // якщо використовуєш Seq
+    .Enrich.FromLogContext()
+    .CreateLogger();
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Host.UseSerilog();
+
 
 // Add services to the container
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddAutoMapper(typeof(MappingProfile));
+builder.Services.AddValidatorsFromAssemblyContaining<SkillValidator>();
+builder.Services.AddValidatorsFromAssemblyContaining<ProjectValidator>();
+builder.Services.AddFluentValidationAutoValidation();
+
 
 // Database
 builder.Services.AddDbContext<CoreDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Register ICoreUnitOfWork
+builder.Services.AddScoped<ISkillRepository, SkillRepository>();
+builder.Services.AddScoped<IProjectRepository, ProjectRepository>();
 builder.Services.AddScoped<ICoreUnitOfWork, CoreUnitOfWork>();
+
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "Core API", Version = "v1" });
+
+    // Налаштування JWT-авторизації для Swagger
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        Type = SecuritySchemeType.Http,
+        Scheme = "Bearer",
+        BearerFormat = "JWT",
+        In = ParameterLocation.Header,
+        Description = "Введіть JWT-токен у форматі: Bearer {token}"
+    });
+
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            new string[] {}
+        }
+    });
+});
 
 // CORS policy
 builder.Services.AddCors(options =>
@@ -65,8 +121,11 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+
 app.UseHttpsRedirection();
 app.UseCors("AllowAll");
+app.UseSerilogRequestLogging();
+app.UseMiddleware<ExceptionMiddleware>();
 app.UseAuthentication();
 app.UseAuthorization();
 
@@ -79,23 +138,5 @@ using (var scope = app.Services.CreateScope())
     dbContext.Database.Migrate();
 }
 
-app.Use(async (context, next) =>
-{
-    if (context.Request.Method == HttpMethod.Get.Method)
-    {
-        await next();
-    }
-    else
-    {
-        if (context.User.Identity?.IsAuthenticated == true)
-        {
-            await next();
-        }
-        else
-        {
-            context.Response.StatusCode = StatusCodes.Status401Unauthorized;
-        }
-    }
-});
 
 app.Run();

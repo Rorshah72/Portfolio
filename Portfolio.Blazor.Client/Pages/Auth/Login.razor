@@ -1,0 +1,51 @@
+﻿@page "/login"
+@inject AuthService AuthService
+@using Portfolio.Shared.Models.Auth
+@using Microsoft.AspNetCore.Components
+@using Microsoft.AspNetCore.Components.Web
+
+<h3>Login</h3>
+
+@if (loginResponse != null && loginResponse.Success)
+{
+    <p>Login successful!</p>
+    <p>Token: @loginResponse.Token</p>
+    <p>Refresh Token: @loginResponse.RefreshToken</p>
+}
+else if (loginResponse != null && !loginResponse.Success)
+{
+    <p class="text-danger">@loginResponse.ErrorMessage</p>
+}
+
+<EditForm Model="loginRequest" OnValidSubmit="HandleLogin">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div>
+        <label>Username:</label>
+        <InputText @bind-Value="loginRequest.Username" />
+    </div>
+
+    <div>
+        <label>Password:</label>
+        <InputText @bind-Value="loginRequest.Password" type="password" />
+    </div>
+
+    <button type="submit">Login</button>
+</EditForm>
+
+@code {
+    private LoginRequest loginRequest = new LoginRequest();
+    private LoginResponse? loginResponse;
+
+    private async Task HandleLogin()
+    {
+        loginResponse = await AuthService.LoginAsync(loginRequest);
+
+        if (loginResponse != null && loginResponse.Success)
+        {
+            // Зберігай токен в LocalStorage (можеш використати бібліотеку для роботи з LocalStorage)
+            // Зайди на домашню сторінку або іншу сторінку
+        }
+    }
+}

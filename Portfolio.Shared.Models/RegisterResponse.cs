@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Portfolio.Shared.Models
 {
-    class RegisterResponse
+    public class RegisterResponse
     {
         public bool Success { get; set; }
         public string? ErrorMessage { get; set; }

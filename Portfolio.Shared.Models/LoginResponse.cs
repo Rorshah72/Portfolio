@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Portfolio.Shared.Models
 {
-    class LoginResponse
+    public class LoginResponse
     {
         public bool Success { get; set; }
         public string? Token { get; set; }

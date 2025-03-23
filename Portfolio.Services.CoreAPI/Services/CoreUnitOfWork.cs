@@ -1,23 +1,26 @@
 ﻿using Portfolio.Services.CoreAPI.Data;
 using Portfolio.Services.CoreAPI.Repositories;
+using Portfolio.Services.CoreAPI.Services;
 using Portfolio.Shared.Models;
 
-namespace Portfolio.Services.CoreAPI.Services
+namespace Portfolio.Services.CoreAPI.Repositories
 {
     public class CoreUnitOfWork : ICoreUnitOfWork
     {
         private readonly CoreDbContext _context;
-        
-        public IRepository<Skill> Skills { get; }
-        public IRepository<Project> Projects { get; }
 
         public CoreUnitOfWork(CoreDbContext context)
         {
             _context = context;            
-            Skills = new Repository<Skill>(context);
-            Projects = new Repository<Project>(context);
+            Skills = new SkillRepository(context);
+            Projects = new ProjectRepository(context);
         }
 
-        public async Task<int> SaveChangesAsync() => await _context.SaveChangesAsync();
+        
+        public ISkillRepository Skills { get; }
+        public IProjectRepository Projects { get; }
+
+        public async Task<int> CompleteAsync() => await _context.SaveChangesAsync();
     }
 }
+
